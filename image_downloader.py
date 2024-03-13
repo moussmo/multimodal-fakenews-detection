@@ -8,17 +8,26 @@ from tqdm import tqdm as tqdm
 tsv_types = ['train', 'validate', 'test_public']
 
 images_folder_path = os.path.join('data', 'images')
+already_downloaded_images = []
+
 if not os.path.exists(images_folder_path):
     os.makedirs(images_folder_path)
+else : 
+    already_downloaded_images = [x.strip('.jpg') for x in os.listdir(images_folder_path)]
+    with open('data/undownloadable_images.txt', 'a+') as undownloadable_images_file : 
+        undownloadable_images = undownloadable_images_file.readlines()
 
-undownloaded_images = []
-
+    
 for type in tsv_types : 
+    print('Starting {} images download'.format(type))
+
     df = pd.read_csv(os.path.join('data', 'multimodal_{}.tsv'.format(type)), sep="\t")
     df = df.replace(np.nan, '', regex=True)
     df.fillna('', inplace=True)
 
-    pbar = tqdm(total=len(df))
+    pbar = tqdm(initial= len(already_downloaded_images) + len(undownloadable_images), total=len(df))
+
+    df = df.loc[~df.id.isin(already_downloaded_images)]
 
     for index, row in df.iterrows():
         if row["hasImage"] == True and row["image_url"] != "" and row["image_url"] != "nan":
@@ -28,11 +37,11 @@ for type in tsv_types :
                 response = requests.get(image_url, stream=True, verify=False)
                 with open(os.path.join(images_folder_path, image_id + ".jpg"), 'wb') as image:
                     shutil.copyfileobj(response.raw, image)    
-                pbar.update(1)
             except :
                 print('image {} with url {} not downloaded'.format(image_id, image_url))
-                undownloaded_images.append(image_id)
+                with open(os.path.join('data', 'undownloadable_images.txt'), 'a') as undownloadable_images_file : 
+                    undownloadable_images_file.write("{}\n".format(row['id']))
+        pbar.update(1)
     print("{} : done".format(type))
 
-with open(os.path.join('data', 'undownloaded_images.txt'), 'wb') as undownloaded_images_file : 
-    undownloaded_images.write(undownloaded_images.join('\n'))
+            
