@@ -14,9 +14,6 @@ if not os.path.exists(images_folder_path):
     os.makedirs(images_folder_path)
 else : 
     already_downloaded_images = [x.strip('.jpg') for x in os.listdir(images_folder_path)]
-    with open('data/undownloadable_images.txt', 'a+') as undownloadable_images_file : 
-        undownloadable_images = undownloadable_images_file.readlines()
-
     
 for type in tsv_types : 
     print('Starting {} images download'.format(type))
@@ -25,7 +22,7 @@ for type in tsv_types :
     df = df.replace(np.nan, '', regex=True)
     df.fillna('', inplace=True)
 
-    pbar = tqdm(initial= len(already_downloaded_images) + len(undownloadable_images), total=len(df))
+    pbar = tqdm(initial= len(already_downloaded_images), total=len(df))
 
     df = df.loc[~df.id.isin(already_downloaded_images)]
 
@@ -39,8 +36,6 @@ for type in tsv_types :
                     shutil.copyfileobj(response.raw, image)    
             except :
                 print('image {} with url {} not downloaded'.format(image_id, image_url))
-                with open(os.path.join('data', 'undownloadable_images.txt'), 'a') as undownloadable_images_file : 
-                    undownloadable_images_file.write("{}\n".format(row['id']))
         pbar.update(1)
     print("{} : done".format(type))
 
