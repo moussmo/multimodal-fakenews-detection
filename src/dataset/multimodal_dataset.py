@@ -29,7 +29,7 @@ class MultimodalDataset(Dataset):
         else : 
             return None
         
-    def _preprocess_title():
+    def _preprocess_title(embedding_type='word2vec'):
         return 1
     
     def _preprocess_image():
