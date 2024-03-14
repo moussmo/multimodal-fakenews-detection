@@ -7,7 +7,7 @@ from tqdm import tqdm as tqdm
 
 tsv_types = ['train', 'validate', 'test_public']
 
-images_folder_path = os.path.join('data', 'images')
+images_folder_path = os.path.join('../data', 'images')
 already_downloaded_images = []
 
 if not os.path.exists(images_folder_path):
@@ -18,7 +18,7 @@ else :
 for type in tsv_types : 
     print('Starting {} images download'.format(type))
 
-    df = pd.read_csv(os.path.join('data', 'multimodal_{}.tsv'.format(type)), sep="\t")
+    df = pd.read_csv(os.path.join('../data', 'multimodal_{}.tsv'.format(type)), sep="\t")
     df = df.replace(np.nan, '', regex=True)
     df.fillna('', inplace=True)
 
