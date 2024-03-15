@@ -1,17 +1,22 @@
 import os
-from gensim.utils import simple_preprocess
-from gensim.models import Word2Vec, KeyedVectors
-from gensim.parsing.preprocesing import remove_stopwords
+import gensim
 
 class WordEmbedding():
-    SAVED_MODELS_PATH = os.path.join('..', '..', 'saved_models')
+    SAVED_MODELS_PATH = os.path.join('saved_models', 'word_embeddings')
 
     def __init__():
         pass
 
     def remove_stopwords(self, text):
-        return remove_stopwords(text)
+        return gensim.parsing.preprocessing.remove_stopwords(text)
     
     def tokenize(self, text):
-        return simple_preprocess(text)
+        return gensim.utils.simple_preprocess(text)
+    
+    def cut_or_pad(self, tokenized_text, limit):
+        if len(tokenized_text)>=limit:
+            return tokenized_text[:limit]
+        else : 
+            #TODO padding
+            return tokenized_text
     
