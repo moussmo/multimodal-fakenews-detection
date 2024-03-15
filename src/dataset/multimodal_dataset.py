@@ -3,9 +3,9 @@ import torch
 import cv2
 import logging
 import pandas as pd
+import numpy as np
 from torch.utils.data import Dataset
 from src.models.word_embeddings.word2vec import Word2VecEmbedding
-
 
 class MultimodalDataset(Dataset):
     TSV_FILES_NAMES = {'train' : "multimodal_train.tsv",
@@ -33,42 +33,46 @@ class MultimodalDataset(Dataset):
         if os.path.exists(image_path):
             return cv2.imread(image_path)
         else : 
-            return None
+            return 1
     
     def _load_word_embedding_model(self):
         if self.word_embedding_type=='word2vec':
             self.embedding_model = Word2VecEmbedding()
-            embedding_model_path = os.path.join(self.SAVED_MODELS_PATH, "word2vec.wordvectors")
+            embedding_model_path = self.embedding_model.get_model_path()
             if os.path.exists(embedding_model_path) and self.force_embedding_training == False:
                 self.embedding_model.load_model()
             else : 
-                self.embedding_model.train()
+                training_text_data = pd.concat([dataset.clean_title for dataset in self.datasets.values()]).reset_index(drop=True)
+                self.embedding_model.train(training_text_data)
 
-    def _preprocess_title(self, documents, number_words_per_text=15):
+    def _preprocess_title(self, title, number_words_per_title=15):
         if self.embedding_model is None :
             self._load_word_embedding_model()
-        documents = documents.apply(self.embedding_model.remove_stopwords)
-        documents = documents.apply(lambda x : self.embedding_model.cut(x, number_words_per_text))
-        documents = documents.apply(self.embedding_model.tokenize)
-        documents = documents.apply(self.embedding_model.predict_tokenized_text)
-        return documents
+        title = self.embedding_model.remove_stopwords(title)
+        title = self.embedding_model.tokenize(title)
+        title = self.embedding_model.cut_or_pad(title, number_words_per_title)
+        title = self.embedding_model.predict_tokenized_text(title)
+        return np.array(title)
     
-    def _preprocess_image():
+    def _preprocess_image(self, image):
         return 1
         
     def __getitem__(self, index, type='train'):
         sample = self.datasets[type].iloc[index]
+        sample_title = sample[self.TITLE_COLUMN]
         sample_image = self._fetch_image(sample[self.ID_COLUMN]) 
-        
+
         if sample_image == None : 
             return (None, None)
         else : 
-            sample_title_preprocessed = self._preprocess_title(sample[self.TITLE_COLUMN])
+            sample_title_preprocessed = self._preprocess_title(sample_title)
             sample_image_preprocessed = self._preprocess_image(sample_image)
-
+            
+            #TODO to_tensor
+            
             x = (sample_title_preprocessed, sample_image_preprocessed)
             y = sample[self.TARGET_COLUMN]
-            # to_tensor
+            
             return (x, y)
 
 

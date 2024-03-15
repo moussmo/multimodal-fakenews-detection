@@ -1,1 +1,9 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+
+# Data folder
 data/
+
+# Saved_models content
+saved_models/*
