@@ -1,0 +1,19 @@
+{
+    "data_dir_path": "data",
+    "saved_models_dir_path": "saved_models",
+    "text_model" : {
+        "model" : "lstm",
+        "number_words_per_title" : 10
+    },
+    "word_embedding_model" : {
+        "model" : "word2vec",
+        "force_retraining" : false,
+        "vector_size" : 300,
+        "window" : 2,
+        "min_count" : 1,
+        "remove_stopwords" : true
+    },
+    "vision_model" : {
+        "model" : "cnn" 
+    }
+}

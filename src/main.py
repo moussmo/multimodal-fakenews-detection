@@ -2,17 +2,14 @@ import sys
 sys.path.append('.')
 
 import os
+import utils.utils as utils
 from dataset.multimodal_dataset import MultimodalDataset
 
 if __name__=="__main__":
-<<<<<<< HEAD
-    if not os.path.exists('data'):
-        os.makedirs('data')
-    if not os.path.exists('saved_models'):
-        os.makedirs('saved_models')
-
-=======
->>>>>>> 23a520ce77792f6fbb2c85b08f674c310a26c92c
-    data_path = 'data'
-    multimodal_dataset = MultimodalDataset(data_path, force_embedding_training=True)
+    utils.create_dirs()
+    configuration_path = "src/config/default_configuration.json"
+    configuration = utils.read_configuration_file(configuration_path)
+    multimodal_dataset = MultimodalDataset(configuration)
     multimodal_dataset[0]
+
+    
