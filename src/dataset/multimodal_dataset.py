@@ -9,8 +9,6 @@ from src.models.word_embeddings.word2vec import Word2VecEmbedding
 import src.utils.utils as utils
 
 class MultimodalDataset(Dataset):
-    TITLE_COLUMN = "clean_title"
-    TARGET_COLUMN = "2_way_label"
 
     def __init__(self, configuration):
         self.configuration = configuration
@@ -61,8 +59,9 @@ class MultimodalDataset(Dataset):
         
     def __getitem__(self, index, type='train'):
         sample = self.datasets[type].iloc[index]
-        sample_title = sample[self.TITLE_COLUMN]
-        sample_image = self._fetch_image(sample['id']) 
+        sample_title = sample['clean_title']
+        sample_image = self._fetch_image(sample['id'])
+        sample_label = sample[self.configuration['target_variable']] 
 
         if sample_image == None : 
             return (None, None)
@@ -73,7 +72,7 @@ class MultimodalDataset(Dataset):
             #TODO to_tensor
             
             x = (sample_title_preprocessed, sample_image_preprocessed)
-            y = sample[self.TARGET_COLUMN]
+            y = sample_label
             
             return x, y
 
