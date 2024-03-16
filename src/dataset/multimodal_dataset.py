@@ -6,7 +6,7 @@ import pandas as pd
 import numpy as np
 from torch.utils.data import Dataset
 from src.models.word_embeddings.word2vec import Word2VecEmbedding
-import src.utils.utils as utils
+import src.utils.utils_text as utils_text
 
 class MultimodalDataset(Dataset):
 
@@ -18,9 +18,6 @@ class MultimodalDataset(Dataset):
                          'test' : pd.read_csv(os.path.join(data_dir_path, 'multimodal_test_public.tsv'), delimiter='\t')}
         self._load_word_embedding_model()
 
-    def __call__(self, key) :
-        return self.configuration[key]
-    
     def _fetch_image(self, id):
         image_path = os.path.join(self.configuration['data_dir_path'], "images", "{}.jpg".format(id))
         if os.path.exists(image_path):
@@ -44,12 +41,12 @@ class MultimodalDataset(Dataset):
                 training_text_data = pd.concat([dataset.clean_title for dataset in self.datasets.values()]).reset_index(drop=True)
                 self.embedding_model.train(training_text_data)
         else : 
-            raise Exception('Word embedding model {} not recognized'.format(word_embedding_type))
+            raise Exception('Word embedding model "{}" not recognized'.format(word_embedding_type))
 
     def _preprocess_title(self, title, number_words_per_title=15):
-        title = utils.remove_stopwords(title)
-        title = utils.tokenize(title)
-        title = utils.cut_or_pad(title, self.configuration['text_model']['number_words_per_title'])
+        title = utils_text.remove_stopwords(title)
+        title = utils_text.tokenize(title)
+        title = utils_text.cut_or_pad(title, self.configuration['text_model']['number_words_per_title'])
         title = self.embedding_model.predict_tokenized_text(title)
         return np.array(title)
     
@@ -68,9 +65,7 @@ class MultimodalDataset(Dataset):
         else : 
             sample_title_preprocessed = self._preprocess_title(sample_title)
             sample_image_preprocessed = self._preprocess_image(sample_image)
-            
-            #TODO to_tensor
-            
+        
             x = (sample_title_preprocessed, sample_image_preprocessed)
             y = sample_label
             

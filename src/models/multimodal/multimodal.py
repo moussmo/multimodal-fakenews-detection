@@ -11,7 +11,7 @@ class MultimodalModel(nn.Module):
         self.linear_model = self._build_linear_model()
 
     def _build_text_model(self):
-        text_model_type = self.configuration['text_model_type']
+        text_model_type = self.configuration['text_model']['model']
         return 1
 
     def _build_vision_model(self):
@@ -22,10 +22,10 @@ class MultimodalModel(nn.Module):
         input_size = self.configuration['text_model']['output_size'] + self.configuration['vision_model']['output_size']
         output_size = int(self.configuration['target_variable'][0])
         layers.insert(0, input_size)
-        layers.insert(-1, output_size)
+        layers.append(output_size)
         linear_layers = [nn.Linear(layers[i],layers[i+1]) for i in range(len(layers)-1)]
-        for i in range(0,len(linear_layers), 2):
-            linear_layers.insert(i, nn.ReLu())
+        for i in range(1,len(linear_layers)+1, 2):
+            linear_layers.insert(i, nn.ReLU())
         linear_stack = nn.Sequential(*linear_layers)
         return linear_stack
 

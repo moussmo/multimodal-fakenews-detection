@@ -2,6 +2,7 @@
     "data_dir_path": "data",
     "saved_models_dir_path": "saved_models",
     "target_variable": "2_way_label",
+    "output_model_file" : "multimodal_bilstm_cnn.pth",
     "text_model" : {
         "model" : "lstm",
         "number_words_per_title" : 10,
@@ -9,6 +10,7 @@
     },
     "word_embedding_model" : {
         "model" : "word2vec",
+        "output_model_file": "word2vec.wordvectors",
         "force_retraining" : false,
         "vector_size" : 300,
         "window" : 2,

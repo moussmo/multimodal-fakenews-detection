@@ -5,7 +5,7 @@ class WordEmbedding():
     def __init__():
         pass
     
-    def _get_model_path(self):
+    def get_model_path(self):
         pass 
 
     def load_model(self, path):
