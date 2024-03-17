@@ -10,12 +10,10 @@ import src.utils.utils_text as utils_text
 
 class MultimodalDataset(Dataset):
 
-    def __init__(self, configuration):
+    def __init__(self, configuration, mode='train'):
         self.configuration = configuration
         data_dir_path = self.configuration['data_dir_path']
-        self.datasets = {'train' : pd.read_csv(os.path.join(data_dir_path, 'multimodal_train.tsv'), delimiter='\t'),
-                         'validate': pd.read_csv(os.path.join(data_dir_path, 'multimodal_validate.tsv'), delimiter='\t'),
-                         'test' : pd.read_csv(os.path.join(data_dir_path, 'multimodal_test_public.tsv'), delimiter='\t')}
+        self.dataset = pd.read_csv(os.path.join(data_dir_path, 'multimodal_{}.tsv').format(mode), delimiter='\t')
         self._load_word_embedding_model()
 
     def _fetch_image(self, id):
@@ -24,6 +22,12 @@ class MultimodalDataset(Dataset):
             return cv2.imread(image_path)
         else : 
             return 1
+    
+    def _load_all_datasets(self,):
+        data_dir_path = self.configuration['data_dir_path']
+        return {'train' : pd.read_csv(os.path.join(data_dir_path, 'multimodal_train.tsv'), delimiter='\t'),
+                'validate': pd.read_csv(os.path.join(data_dir_path, 'multimodal_validate.tsv'), delimiter='\t'),
+                'test' : pd.read_csv(os.path.join(data_dir_path, 'multimodal_test_public.tsv'), delimiter='\t')}
     
     def _load_word_embedding_model(self):
         try : 
@@ -38,7 +42,8 @@ class MultimodalDataset(Dataset):
             if os.path.exists(embedding_model_path) and  force_retraining == False:
                 self.embedding_model.load_model()
             else : 
-                training_text_data = pd.concat([dataset.clean_title for dataset in self.datasets.values()]).reset_index(drop=True)
+                all_datasets = self._load_all_datasets()
+                training_text_data = pd.concat([dataset.clean_title for dataset in all_datasets.values()]).reset_index(drop=True)
                 self.embedding_model.train(training_text_data)
         else : 
             raise Exception('Word embedding model "{}" not recognized'.format(word_embedding_type))
@@ -54,8 +59,8 @@ class MultimodalDataset(Dataset):
         #TODO
         return 1
         
-    def __getitem__(self, index, type='train'):
-        sample = self.datasets[type].iloc[index]
+    def __getitem__(self, index):
+        sample = self.dataset.iloc[index]
         sample_title = sample['clean_title']
         sample_image = self._fetch_image(sample['id'])
         sample_label = sample[self.configuration['target_variable']] 
