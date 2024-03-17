@@ -6,9 +6,9 @@ def remove_stopwords(text):
 def tokenize(text):
     return gensim.utils.simple_preprocess(text)
 
-def cut_or_pad(tokenized_text, limit):
-    if len(tokenized_text)>=limit:
-        return tokenized_text[:limit]
+def cut_or_pad(tokenized_text, sequence_length):
+    if len(tokenized_text)>=sequence_length:
+        return tokenized_text[:sequence_length]
     else : 
         #TODO padding
         return tokenized_text

@@ -43,10 +43,10 @@ class MultimodalDataset(Dataset):
         else : 
             raise Exception('Word embedding model "{}" not recognized'.format(word_embedding_type))
 
-    def _preprocess_title(self, title, number_words_per_title=15):
+    def _preprocess_title(self, title):
         title = utils_text.remove_stopwords(title)
         title = utils_text.tokenize(title)
-        title = utils_text.cut_or_pad(title, self.configuration['text_model']['number_words_per_title'])
+        title = utils_text.cut_or_pad(title, self.configuration['text_model']['sequence_length'])
         title = self.embedding_model.predict_tokenized_text(title)
         return np.array(title)
     
