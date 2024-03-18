@@ -44,8 +44,7 @@ if __name__=="__main__":
     configuration_path = r"src/config/default_configuration.json"
     configuration = utils.read_configuration_file(configuration_path)
 
-    utils.setup_directories(configuration)
-    #utils.check_data_directory(configuration)
+    utils.check_directories(configuration)
     device = utils.get_available_device()
 
     batch_size = configuration['training_parameters']['batch_size']
