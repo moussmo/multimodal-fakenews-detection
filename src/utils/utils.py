@@ -6,12 +6,8 @@ def read_configuration_file(configuration_file_path):
         configuration = json.load(file)
     return configuration
 
-def setup_directories(configuration):
-    dirs = [configuration['saved_models_dir_path'], configuration['data_dir_path']]
-    for dir in dirs:
-        os.makedirs(dir, exist_ok=True)
-
-def check_data_directory(configuration):
+def check_directories(configuration):
+    os.makedirs(configuration['saved_models_dir_path'], exist_ok=True)
     data_dir_path= configuration['data_dir_path']
     try :
         for type in ['train', 'validate', 'test_public']:
