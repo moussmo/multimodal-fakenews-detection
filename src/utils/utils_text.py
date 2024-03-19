@@ -11,4 +11,5 @@ def cut_or_pad(tokenized_text, sequence_length):
         return tokenized_text[:sequence_length]
     else : 
         #TODO padding
+        tokenized_text.extend([tokenized_text[0] for i in range(len(tokenized_text), sequence_length)])
         return tokenized_text

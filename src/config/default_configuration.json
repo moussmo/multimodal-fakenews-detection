@@ -23,7 +23,7 @@
     },
     "vision_model" : {
         "model" : "cnn",
-        "input_size" : [50,50],
+        "input_size" : [320, 320],
         "kernel_size" : 3,
         "stride" : 1,
         "conv_layers" : [8, 16, 32],
@@ -38,6 +38,7 @@
             "name" : "adam",
             "lr" : 1e-3
         },
+        "batch_size" : 12,
         "number_epochs" : 20,
         "loss" : "cross_entropy",
         "metrics" : []

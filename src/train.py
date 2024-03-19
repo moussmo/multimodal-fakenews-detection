@@ -8,11 +8,12 @@ from dataset.multimodal_dataset import MultimodalDataset
 from models.multimodal.multimodal import MultimodalModel
 from torch.utils.data import DataLoader
 
-def train(dataloader, model, loss_function, optimizer):
+def train(model, dataloader, loss_function, optimizer):
     size = len(dataloader.dataset)
     model.train()
     for batch, (X, y) in enumerate(dataloader):
-        X, y = X.to(device), y.to(device)
+
+        X, y = list(map(lambda x: x.double().to(device), X)), y.long().to(device)
 
         pred = model(X)
         loss = loss_function(pred, y)
@@ -25,7 +26,7 @@ def train(dataloader, model, loss_function, optimizer):
             loss, current = loss.item(), (batch + 1) * len(X)
             print(f"loss: {loss:>7f}  [{current:>5d}/{size:>5d}]")
 
-def test(dataloader, model, loss_function):
+def validate(model, dataloader, loss_function):
     size = len(dataloader.dataset)
     num_batches = len(dataloader)
     model.eval()
@@ -49,8 +50,6 @@ if __name__=="__main__":
 
     batch_size = configuration['training_parameters']['batch_size']
     n_epochs = configuration['training_parameters']['number_epochs']
-    loss_function = utils.retrieve_loss_function(configuration)
-    optimizer = utils.retrieve_optimizer(configuration)
 
     multimodal_dataset_train = MultimodalDataset(configuration, mode='train')
     train_dataloader = DataLoader(multimodal_dataset_train, batch_size=batch_size)
@@ -58,15 +57,15 @@ if __name__=="__main__":
     multimodal_dataset_validate = MultimodalDataset(configuration, mode='validate')
     validate_dataloader = DataLoader(multimodal_dataset_validate, batch_size=batch_size)
 
-    multimodal_dataset_test = MultimodalDataset(configuration, mode='test_public')
-    test_dataloader = DataLoader(multimodal_dataset_test, batch_size=batch_size)
-
-    multimodal_model = MultimodalModel(configuration).to(device)
+    multimodal_model = MultimodalModel(configuration).double().to(device)
+    
+    loss_function = utils.retrieve_loss_function(configuration)
+    optimizer = utils.retrieve_optimizer(configuration, model_parameters=multimodal_model.parameters())
 
     for epoch in range(n_epochs):
         print(f"Epoch {epoch+1}\n-------------------------------")
-        train(train_dataloader, multimodal_model, loss_function, optimizer)
-        test(validate_dataloader, multimodal_model, loss_function)
+        train(multimodal_model, train_dataloader, loss_function, optimizer)
+        validate(multimodal_model, validate_dataloader, loss_function)
 
     print('Training over')
         

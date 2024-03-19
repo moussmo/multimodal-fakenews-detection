@@ -21,8 +21,8 @@ def check_directories(configuration):
         assert os.path.isdir(images_path)
         assert len(os.listdir(images_path))
     except : 
-        raise Exception("images subdirectory in /data either doesn't exist or is empty. \
-                        Make sure to create the folder and fill it with the dataset images")
+        raise Exception("""images subdirectory in /data either doesn't exist or is empty. 
+        \n Make sure to create the folder and fill it with the dataset images""")
 
 def get_available_device():
     return ("cuda" if torch.cuda.is_available() 
@@ -39,14 +39,14 @@ def retrieve_loss_function(configuration):
     else : 
         return torch.nn.CrossEntropyLoss()
 
-def retrieve_optimizer(configuration):
+def retrieve_optimizer(configuration, model_parameters):
     optimizer = configuration['training_parameters']['optimizer']['name']
     lr =  configuration['training_parameters']['optimizer']['lr']
     if optimizer=='adam':
-        return torch.optim.Adam(lr=lr)
+        return torch.optim.Adam(model_parameters, lr=lr)
     elif optimizer=='sgd':
-        return torch.optim.SGD(lr=lr)
+        return torch.optim.SGD(model_parameters, lr=lr)
     elif optimizer=='adagrad':
-        return torch.optim.Adagrad(lr=lr)
+        return torch.optim.Adagrad(model_parameters, lr=lr)
     else : 
-        return torch.optim.Adam(lr=lr)
+        return torch.optim.Adam(model_parameters, slr=lr)

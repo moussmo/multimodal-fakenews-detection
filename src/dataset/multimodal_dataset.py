@@ -7,6 +7,7 @@ import numpy as np
 from torch.utils.data import Dataset
 from src.models.word_embeddings.word2vec import Word2VecEmbedding
 import src.utils.utils_text as utils_text
+import src.utils.utils_vision as utils_vision
 
 class MultimodalDataset(Dataset):
 
@@ -16,6 +17,9 @@ class MultimodalDataset(Dataset):
         self.dataset = pd.read_csv(os.path.join(data_dir_path, 'multimodal_{}.tsv').format(mode), delimiter='\t')
         self._load_word_embedding_model()
 
+    def __len__(self):
+        return self.dataset.shape[0]
+    
     def _fetch_image(self, id):
         image_path = os.path.join(self.configuration['data_dir_path'], "images", "{}.jpg".format(id))
         if os.path.exists(image_path):
@@ -57,7 +61,10 @@ class MultimodalDataset(Dataset):
     
     def _preprocess_image(self, image):
         #TODO
-        return 1
+        image = cv2.resize(image, self.configuration['vision_model']['input_size'])
+        image = utils_vision.min_maxer(image)
+        image = image.transpose(2, 0, 1)
+        return image
         
     def __getitem__(self, index):
         sample = self.dataset.iloc[index]
@@ -65,7 +72,7 @@ class MultimodalDataset(Dataset):
         sample_image = self._fetch_image(sample['id'])
         sample_label = sample[self.configuration['target_variable']] 
 
-        if sample_image == None : 
+        if sample_image is None : 
             return (None, None)
         else : 
             sample_title_preprocessed = self._preprocess_title(sample_title)
@@ -74,7 +81,7 @@ class MultimodalDataset(Dataset):
             x = (sample_title_preprocessed, sample_image_preprocessed)
             y = sample_label
             
-            return x, y
+            return x, y 
 
 
         

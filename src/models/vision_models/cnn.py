@@ -15,10 +15,10 @@ class CNN(nn.Module):
         pooling_kernel_size = (2,2)
         pooling_stride = 2
         for i in range(1, len(conv_layers)+1, 2):
-            conv_layers.insert(i, nn.MaxPool2d((2,2),2))
+            conv_layers.insert(i, nn.MaxPool2d(pooling_kernel_size, 2))
             number_of_maxpools+=1
         self.conv_stack = nn.Sequential(*conv_layers)
-
+        self.flatten = torch.nn.Flatten()
         conv_output_H, conv_output_W = utils_vision.calculate_maxpool_output(input_size=input_size, 
                                                                     number_of_maxpools=number_of_maxpools, 
                                                                     pooling_kernel_size=pooling_kernel_size,
@@ -34,6 +34,6 @@ class CNN(nn.Module):
         
     def forward(self, input):
         x = self.conv_stack(input)
-        x = torch.flatten(x)
+        x = self.flatten(x)
         output = self.linear_stack(x)
         return output

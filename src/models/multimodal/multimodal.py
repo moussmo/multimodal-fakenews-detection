@@ -10,6 +10,7 @@ class MultimodalModel(nn.Module):
         self._build_text_model()
         self._build_vision_model()
         self._build_linear_model()
+        self.softmax = nn.Softmax(dim=1)
 
     def _build_text_model(self):
         try : 
@@ -19,6 +20,7 @@ class MultimodalModel(nn.Module):
         if text_model_type.lower() == "lstm":
             self.text_model = LSTM(input_size=self.configuration['word_embedding_model']['vector_size'], 
                                    hidden_size=self.configuration['text_model']['hidden_size'], 
+                                   sequence_length=self.configuration['text_model']['sequence_length'],
                                    number_layers=self.configuration['text_model']['number_layers'], 
                                    output_size=self.configuration['text_model']['output_size'], 
                                    bidirectional=self.configuration['text_model']['bidirectional'],
@@ -51,15 +53,14 @@ class MultimodalModel(nn.Module):
         linear_layers = [nn.Linear(layers[i],layers[i+1]) for i in range(len(layers)-1)]
         for i in range(1, len(linear_layers)+1, 2):
             linear_layers.insert(i, nn.ReLU())
-        linear_stack = nn.Sequential(*linear_layers)
-        return linear_stack
+        self.linear_model = nn.Sequential(*linear_layers)
 
     def forward(self, input):
         x1, x2 = input
         x1 = self.text_model(x1)
         x2 = self.vision_model(x2)
-        x3 = torch.concat([x1, x2])
+        x3 = torch.concat([x1, x2], dim=1)
         x3 = self.linear_model(x3)
-        output = nn.Softmax(x3)
+        output = self.softmax(x3)
         return output
 
