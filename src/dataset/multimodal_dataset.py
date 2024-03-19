@@ -63,18 +63,18 @@ class MultimodalDataset(Dataset):
 
         sequence_length = self.configuration['text_model']['sequence_length']
         if len(title) > sequence_length : 
-            title = utils_text.remove_stopwords(title)
+            title = utils_text.remove_stopwords_tokenized(title)
             if len(title) > sequence_length : 
                 title = title[:sequence_length]
-            title = self.embedding_model.predict_tokenized_text(title)
-        elif len(title) < sequence_length : 
-            title = self.embedding_model.predict_tokenized_text(title)
+
+        title = self.embedding_model.predict_tokenized_text(title)
+
+        if len(title) < sequence_length : 
             title = utils_text.zero_pad(title, sequence_length)
 
         return np.array(title)
     
     def _preprocess_image(self, image):
-        #TODO
         image = cv2.resize(image, self.configuration['vision_model']['input_size'])
         image = utils_vision.min_maxer(image)
         image = image.transpose(2, 0, 1)

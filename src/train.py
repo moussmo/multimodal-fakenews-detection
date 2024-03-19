@@ -1,29 +1,29 @@
 import sys
 sys.path.append('.')
 
-import os
 import torch
 import utils.utils as utils
+
+from tqdm import tqdm
+
 from dataset.multimodal_dataset import MultimodalDataset
 from models.multimodal.multimodal import MultimodalModel
 from torch.utils.data import DataLoader
 
 def train(model, dataloader, loss_function, optimizer):
-    size = len(dataloader.dataset)
     model.train()
-    for batch, (X, y) in enumerate(dataloader):
-        X, y = list(map(lambda x: x.double().to(device), X)), y.long().to(device)
+    with tqdm(dataloader, unit="batch") as tepoch:
+        for (X, y) in tepoch:
+            X, y = list(map(lambda x: x.double().to(device), X)), y.long().to(device)
 
-        pred = model(X)
-        loss = loss_function(pred, y)
+            pred = model(X)
+            loss = loss_function(pred, y)
 
-        loss.backward()
-        optimizer.step()
-        optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
+            optimizer.zero_grad()
 
-        if batch % 100 == 0:
-            loss, current = loss.item(), (batch + 1) * len(X)
-            print(f"loss: {loss:>7f}  [{current:>5d}/{size:>5d}]")
+            tepoch.set_postfix(loss=loss.item())
 
 def validate(model, dataloader, loss_function):
     size = len(dataloader.dataset)

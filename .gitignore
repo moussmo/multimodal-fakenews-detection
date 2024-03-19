@@ -5,5 +5,7 @@ __pycache__/
 # Data folder
 data/
 
+*.ipynb
+
 # Saved_models
 saved_models/
