@@ -60,8 +60,17 @@ class MultimodalDataset(Dataset):
 
     def _preprocess_title(self, title):
         title = utils_text.tokenize(title)
-        title = utils_text.cut_or_pad(title, self.configuration['text_model']['sequence_length'])
-        title = self.embedding_model.predict_tokenized_text(title)
+
+        sequence_length = self.configuration['text_model']['sequence_length']
+        if len(title) > sequence_length : 
+            title = utils_text.remove_stopwords(title)
+            if len(title) > sequence_length : 
+                title = title[:sequence_length]
+            title = self.embedding_model.predict_tokenized_text(title)
+        elif len(title) < sequence_length : 
+            title = self.embedding_model.predict_tokenized_text(title)
+            title = utils_text.zero_pad(title, sequence_length)
+
         return np.array(title)
     
     def _preprocess_image(self, image):

@@ -12,7 +12,6 @@ def train(model, dataloader, loss_function, optimizer):
     size = len(dataloader.dataset)
     model.train()
     for batch, (X, y) in enumerate(dataloader):
-
         X, y = list(map(lambda x: x.double().to(device), X)), y.long().to(device)
 
         pred = model(X)
