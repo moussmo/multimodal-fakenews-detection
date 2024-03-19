@@ -17,9 +17,9 @@
         "output_model_file": "word2vec.wordvectors",
         "force_retraining" : false,
         "vector_size" : 300,
-        "window" : 2,
+        "window" : 1,
         "min_count" : 1,
-        "remove_stopwords" : true
+        "remove_stopwords" : false
     },
     "vision_model" : {
         "model" : "cnn",

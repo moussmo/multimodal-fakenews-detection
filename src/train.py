@@ -52,10 +52,10 @@ if __name__=="__main__":
     n_epochs = configuration['training_parameters']['number_epochs']
 
     multimodal_dataset_train = MultimodalDataset(configuration, mode='train')
-    train_dataloader = DataLoader(multimodal_dataset_train, batch_size=batch_size)
+    train_dataloader = DataLoader(multimodal_dataset_train, batch_size=batch_size, shuffle=True)
 
     multimodal_dataset_validate = MultimodalDataset(configuration, mode='validate')
-    validate_dataloader = DataLoader(multimodal_dataset_validate, batch_size=batch_size)
+    validate_dataloader = DataLoader(multimodal_dataset_validate, batch_size=batch_size, shuffle=True)
 
     multimodal_model = MultimodalModel(configuration).double().to(device)
     

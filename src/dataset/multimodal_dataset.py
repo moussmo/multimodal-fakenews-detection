@@ -27,6 +27,12 @@ class MultimodalDataset(Dataset):
         else : 
             return 1
     
+    def _clean_dataset(self):
+        #TODO 
+        # clean titles, 
+        # clean rows with no images
+        pass
+
     def _load_all_datasets(self,):
         data_dir_path = self.configuration['data_dir_path']
         return {'train' : pd.read_csv(os.path.join(data_dir_path, 'multimodal_train.tsv'), delimiter='\t'),
@@ -53,7 +59,6 @@ class MultimodalDataset(Dataset):
             raise Exception('Word embedding model "{}" not recognized'.format(word_embedding_type))
 
     def _preprocess_title(self, title):
-        title = utils_text.remove_stopwords(title)
         title = utils_text.tokenize(title)
         title = utils_text.cut_or_pad(title, self.configuration['text_model']['sequence_length'])
         title = self.embedding_model.predict_tokenized_text(title)
@@ -72,8 +77,9 @@ class MultimodalDataset(Dataset):
         sample_image = self._fetch_image(sample['id'])
         sample_label = sample[self.configuration['target_variable']] 
 
-        if sample_image is None : 
-            return (None, None)
+        if sample_image is None :
+            random_other_sample_index = np.random.choice(self.dataset.index, 1) 
+            return self[random_other_sample_index]
         else : 
             sample_title_preprocessed = self._preprocess_title(sample_title)
             sample_image_preprocessed = self._preprocess_image(sample_image)
