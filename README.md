@@ -1,1 +1,1 @@
-# multimodal-fakenews-detection
+# Multimodal Fakenews Detection 
